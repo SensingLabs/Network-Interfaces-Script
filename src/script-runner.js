@@ -7,13 +7,13 @@ const READ_SCRIPT_PATH  = path.join(__dirname, './awk/readInterfaces.awk');
 const WRITE_SCRIPT_PATH = path.join(__dirname, './awk/changeInterface.awk');
 const DEFAULT_INTERFACE = 'eth0';
 const DEFAULT_INTERFACE_FILE_LOCATION = '/etc/network/interfaces';
-const ADDRESS_RETURN_ORDER = ['address', 'netmask', 'gateway'];
+const ADDRESS_RETURN_ORDER = ['address', 'netmask', 'network','gateway','dns1','dns2'];
 
 
 const convertArgsForScript = function convertArgsForScript (interfacesFilePath, args) {
   const converted = [interfacesFilePath];
 
-  // The script requires that device be specified as 
+  // The script requires that device be specified as
   // "dev=<deviceName>" if changing the interface
   converted.push(`dev=${args.device}`);
   delete args.device;
@@ -75,7 +75,7 @@ const read = function read (interfacesFilePath, interfaceName) {
         reject(error);
       })
   });
-  
+
 };
 
 const write = function write (interfacesFilePath, interfaceName, args) {

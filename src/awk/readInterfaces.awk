@@ -1,10 +1,10 @@
 BEGIN { start = 0;
- 
+
     if (ARGC < 3 || ARGC > 4) {
         print "awk -f readInterfaces.awk <interfaces file> device=<eth device> [debug]"
         exit 1;
     }
- 
+
     for (i = 2; i < ARGC; i++) {
         if (ARGV[i] == debug) {
             debug = 1;
@@ -14,13 +14,13 @@ BEGIN { start = 0;
         if (arg[1] == "device")
             device = arg[2];
     }
- 
+
     if (!length(device)) {
         print "awk -f readInterfaces.awk <interfaces file> device=<eth device> [debug]"
         exit 1;
     }
 }
- 
+
 {
     # Look for iface line and if the interface comes with the device name
     # scan whether it is dhcp or static or manual
@@ -45,7 +45,7 @@ BEGIN { start = 0;
                 gotTypeNoAddr = 1;
                 exit 0;
             }
- 
+
             # If it is other inteface line, switch it off
             # Go to the next line
         } else {
@@ -53,15 +53,15 @@ BEGIN { start = 0;
             next;
         }
     }
- 
+
     # At here, it means we are after the iface static line of
     # after the device we are searching for
     # Scan for the static content
     if (static) {
- 
+
         if (debug)
             print "static - ", $0, $1;
- 
+
         if ($1 == "address") {
             address = $2;
             gotAddr = 1;
@@ -70,16 +70,25 @@ BEGIN { start = 0;
             netmask = $2;
             gotAddr = 1;
         }
+        if ($1 == "network") {
+            network = $2;
+            gotAddr = 1;
+        }
         if ($1 == "gateway") {
             gateway = $2;
             gotAddr = 1;
         }
+        if ($1 == "dns-nameservers") {
+            dns1 = $2;
+            dns2 = $3;
+            gotAddr = 1;
+        }
     }
 }
- 
+
 END {
     if (gotAddr) {
-        printf("%s %s %s\n", address, netmask, gateway);
+        printf("%s %s %s %s %s %s\n", address, netmask, gateway, network, dns1, dns2);
         exit 0;
     } else {
         if (gotTypeNoAddr) {
